@@ -60,6 +60,19 @@ input::placeholder {
   color: #c9c9c9;
 }
 
+@keyframes fade-in {
+  0% {
+    opacity: .1;
+  }   100% {
+    opacity: 1;
+  }
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
   font-family: 'Montserrat', sans-serif;
   font-size: 1.6rem;
@@ -77,6 +90,8 @@ body {
   margin: 0;
   padding: 1rem;
 
+  transition: background-image 1s ease-in-out;
+  animation: fade-in 1s linear;
   text-align: center;
 
   color: #00fd59;
@@ -98,7 +113,7 @@ body::after {
 
   content: '';
 
-  background-color: rgba(0,0,0,.1);
+  background-color: rgba(0,0,0,.2);
   background-image: linear-gradient(to top,rgba(0,0,0,.8) 0,rgba(0,0,0,0) 60%,rgba(0,0,0,.8) 100%);
 }
 
@@ -112,7 +127,7 @@ body::after {
 }
 
 .time {
-  font-size: 8rem;
+  font-size: 7rem;
 
   letter-spacing: 1px;
 }
@@ -234,6 +249,32 @@ body::after {
   box-shadow: 0 0 0 3px #159ce466;
 }
 
+.img-change {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.change-icon {
+  width: 30px;
+  height: 30px;
+
+  transition: fill .1s linear, transform .2s linear;
+  transform: rotate(65deg);
+
+  fill: #fff;
+}
+
+.change-icon:hover {
+  fill: #00fd59;
+}
+
+.img-change:disabled .change-icon {
+  transform: rotate(-130deg);
+
+  fill: rgb(161, 161, 161);
+}
+
 @media only screen and (max-width: 1199px) {
   html {
     font-size: 90%;
@@ -243,6 +284,10 @@ body::after {
 @media only screen and (max-width: 991px) {
   html {
     font-size: 75%;
+  }
+
+  .quote-txt {
+    font-size: 1.4rem;
   }
 }
 
