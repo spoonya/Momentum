@@ -37,6 +37,10 @@ const showDateTime = () => {
   TIME_DOM.innerHTML = `${HOUR}:${addZero(MIN)}:${addZero(SEC)}`;
   DATE_DOM.innerHTML = `${DAY_WEEK}, ${MONTH} ${DAY_MONTH}`;
 
+  if (MIN === 0 & SEC === 0) {
+    setBgGreet();
+  }
+
   setTimeout(showDateTime, 1000);
 };
 
@@ -144,13 +148,19 @@ const placeholderSetRemove = (e) => {
 };
 
 //Weather
-const getWeather = async () => {
-  if (!localStorage.getItem('city')) return;
-
+const getWeather = async (posUrl = '') => {
   try {
-    const URL = `https://api.openweathermap.org/data/2.5/weather?q=${WEATHER_CITY_DOM.innerText}&lang=en&appid=ad238bc7a61c1426e7873c1e86ee4cb1&units=metric`;
-    const RES = await fetch(URL);
+    let url;
+    if (!posUrl) {
+      url = `https://api.openweathermap.org/data/2.5/weather?q=${WEATHER_CITY_DOM.innerText}&lang=en&appid=ad238bc7a61c1426e7873c1e86ee4cb1&units=metric`;
+    } else {
+      url = posUrl;
+    }
+
+    const RES = await fetch(url);
     const DATA = await RES.json();
+
+    localStorage.setItem('city', DATA.name);
     WEATHER_CITY_DOM.innerText = DATA.name;
     WEATHER_ICON_DOM.className = 'weather-icon owf';
     WEATHER_ICON_DOM.classList.add(`owf-${DATA.weather[0].id}`);
@@ -166,9 +176,21 @@ const getWeather = async () => {
     WEATHER_WIND_DOM.textContent = '';
     WEATHER_AIR_DOM.textContent = '';
     WEATHER_DESCRIP_DOM.textContent = '';
-    alert('Incorrect city');
+    alert('City not found');
   }
 }
+
+const getCurPos = () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      lon = position.coords.longitude;
+      lat = position.coords.latitude;
+      getWeather(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=ad238bc7a61c1426e7873c1e86ee4cb1&units=metric`);
+    });
+  } else {
+    return;
+  }
+};
 
 //Quotes
 async function getQuote() {
@@ -212,7 +234,10 @@ const createImgArr = () => {
 //Set BG and greeting
 const setBgGreet = () => {
   const TODAY = new Date(),
-    HOURS = TODAY.getHours();
+    HOURS = TODAY.getHours(),
+    DELAY = 3600000 - TODAY.getMinutes() * 60000;
+
+  // setTimeout(setBgGreet, DELAY);
   let idxHour = 0;
 
   if (HOURS >= 6 && HOURS < 12) {
@@ -233,10 +258,11 @@ const setBgGreet = () => {
     GREEETING_DOM.innerText = 'Good night, ';
     console.log(imgArr[idxHour]);
   }
-  const DELAY = 3600000 - TODAY.getMinutes() * 60000;
-  setTimeout(setBgGreet, DELAY);
-  console.log(imgArr[idxHour]);
+
   idxChange = idxHour;
+  console.log(DELAY / 60000 + ' min to change');
+  console.log(idxChange);
+  console.log(imgArr[idxHour]);
 }
 
 const viewBgImage = (data) => {
@@ -277,9 +303,8 @@ WEATHER_CITY_DOM.addEventListener('click', placeholderSetRemove);
 IMG_CHANGE_BTN.addEventListener('click', getImage);
 
 getLocalStorage();
-getWeather();
+localStorage.getItem('city') === null ? getCurPos() : getWeather();
 getQuote();
 createImgArr();
 setBgGreet();
 showDateTime();
-
